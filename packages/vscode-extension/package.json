@@ -1,0 +1,65 @@
+{
+  "name": "vscode-extension",
+  "displayName": "",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.70.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCustomEditor:svg-viewer.hello"
+  ],
+  "browser": "./dist/extension.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kajirikajiri/vscode-extension-svg-viewer-2.git"
+  },
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "svg-viewer.hello",
+        "displayName": "svg-viewer",
+        "selector": [
+          {
+            "filenamePattern": "*.svg-viewer"
+          }
+        ]
+      }
+    ],
+    "languages": [
+      {
+        "id": "html",
+        "extensions": [
+          ".svg-viewer"
+        ]
+      }
+    ]
+  },
+  "scripts": {
+    "build": "vsce package --no-dependencies",
+    "test": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. --extensionTestsPath=dist/web/test/suite/index.js",
+    "vscode:prepublish": "npm run compile",
+    "compile": "node build.js",
+    "dev": "node build.js --dev",
+    "lint": "eslint src --ext ts",
+    "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ."
+  },
+  "devDependencies": {
+    "@types/mocha": "^9.1.1",
+    "@types/vscode": "^1.70.0",
+    "@typescript-eslint/eslint-plugin": "^5.31.0",
+    "@typescript-eslint/parser": "^5.31.0",
+    "@vscode/test-web": "^0.0.29",
+    "assert": "^2.0.0",
+    "esbuild": "^0.15.5",
+    "eslint": "^8.20.0",
+    "mocha": "^10.0.0",
+    "process": "^0.11.10",
+    "ts-loader": "^9.3.1",
+    "typescript": "^4.7.4",
+    "vsce": "^2.10.2"
+  }
+}

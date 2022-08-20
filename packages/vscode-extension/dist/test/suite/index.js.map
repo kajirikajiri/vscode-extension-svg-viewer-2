@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/web/test/suite/index.ts"],
+  "sourcesContent": ["// imports mocha for the browser, defining the `mocha` global.\nrequire('mocha/mocha');\n\nexport function run(): Promise<void> {\n\n\treturn new Promise((c, e) => {\n\t\tmocha.setup({\n\t\t\tui: 'tdd',\n\t\t\treporter: undefined\n\t\t});\n\n\t\t// bundles all files in the current directory matching `*.test`\n\t\tconst importAll = (r: __WebpackModuleApi.RequireContext) => r.keys().forEach(r);\n\t\timportAll(require.context('.', true, /\\.test$/));\n\n\t\ttry {\n\t\t\t// Run the mocha test\n\t\t\tmocha.run(failures => {\n\t\t\t\tif (failures > 0) {\n\t\t\t\t\te(new Error(`${failures} tests failed.`));\n\t\t\t\t} else {\n\t\t\t\t\tc();\n\t\t\t\t}\n\t\t\t});\n\t\t} catch (err) {\n\t\t\tconsole.error(err);\n\t\t\te(err);\n\t\t}\n\t});\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AACA,QAAQ;AAED,SAAS,MAAqB;AAEpC,SAAO,IAAI,QAAQ,CAAC,GAAG,MAAM;AAC5B,UAAM,MAAM;AAAA,MACX,IAAI;AAAA,MACJ,UAAU;AAAA,IACX,CAAC;AAGD,UAAM,YAAY,CAAC,MAAyC,EAAE,KAAK,EAAE,QAAQ,CAAC;AAC9E,cAAU,QAAQ,QAAQ,KAAK,MAAM,SAAS,CAAC;AAE/C,QAAI;AAEH,YAAM,IAAI,cAAY;AACrB,YAAI,WAAW,GAAG;AACjB,YAAE,IAAI,MAAM,GAAG,wBAAwB,CAAC;AAAA,QACzC,OAAO;AACN,YAAE;AAAA,QACH;AAAA,MACD,CAAC;AAAA,IACF,SAAS,KAAP;AACD,cAAQ,MAAM,GAAG;AACjB,QAAE,GAAG;AAAA,IACN;AAAA,EACD,CAAC;AACF;",
+  "names": []
+}
