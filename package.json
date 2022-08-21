@@ -7,6 +7,7 @@
   ],
   "scripts": {
     "build": "turbo run build",
+    "build-force": "turbo run build --force",
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint",
     "format": "turbo run prettier"

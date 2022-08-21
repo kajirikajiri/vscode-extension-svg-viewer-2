@@ -1,51 +1,14 @@
-import { useEffect, useState, useRef } from 'react'
-import styled, { css } from 'styled-components'
+import { useEffect, useState } from 'react'
+import styled from 'styled-components'
 
-// type ContainerProps = {
-//   offsetX: number
-//   offsetY: number
-//   size: number
-// }
-
-// const Container = styled.div<ContainerProps>`
-//   ${props => backgroundPosition(props)}
-
-//   position: relative;
-//   overflow: hidden;
-//   contain: strict;
-//   background-size: auto;
-//   flex: 1;
-// `
-
-// const backgroundPosition = ({
-//   offsetX,
-//   offsetY,
-//   size,
-// }: any) => {
-//   return css`
-//     background-position: ${offsetX}px ${offsetY}px, calc(${size}px / 2 + ${offsetX}px) calc(${size}px / 2 + ${offsetY}px);
-//   `
-// }
-
-// const Main = styled.div`
-//   position: absolute;
-//   top: 0;
-//   left: 0;
-//   width: 100%;
-//   height: 100%;
-//   flex: 1;
-//   display: flex;
-//   flex-direction: column;
-// `
-
-const Container = styled.div`
+const ViewportWrap = styled.div`
   position: relative;
   flex: 1;
   overflow: hidden;
   contain: strict;
 `
 
-const View = styled.div`
+const Viewport = styled.div`
   position: absolute;
   top: 0;
   left: 0;
@@ -60,30 +23,45 @@ const Child = styled.div`
   height: 400px;
 `
 
-const factor = 0.01
-const maxScale = 100
+const zoomPoint = {
+  x: 0, y: 0
+}
+const zoomTarget = {
+  x: 0, y: 0
+}
+const factor = 0.1
+const maxScale = 10
 const minScale = 0.1
 
 function App() {
   const [count, setCount] = useState(0)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const viewRef = useRef<HTMLDivElement>(null)
   const [editor, setEditor] = useState({
     scale: 1,
     scroll: {
       x: 0,
       y: 0,
-    }
-  })
-
-  useEffect(() => {
-    const handleWheel = (e: WheelEvent) => {
+    },
+    handleWheel: (e: WheelEvent) => {
       e.preventDefault();
 
-      if (e.ctrlKey || e.metaKey) {
+      const isScaling = e.ctrlKey || e.metaKey
+      if (isScaling) {
         // https://jsfiddle.net/xta2ccdt/13/
 
-        if (!containerRef.current || !viewRef.current) return
+        zoomPoint.x = e.pageX
+        zoomPoint.y = e.pageY
+
+        const delta = Math.max(-1, Math.min(1, -e.deltaY))
+
+        zoomTarget.x = (zoomPoint.x - editor.scroll.x) / editor.scale
+        zoomTarget.y = (zoomPoint.y - editor.scroll.y) / editor.scale
+
+        editor.scale += delta * factor * editor.scale
+        editor.scale = Math.max(minScale, Math.min(maxScale, editor.scale))
+
+        editor.scroll.x = -zoomTarget.x * editor.scale + zoomPoint.x
+        editor.scroll.y = -zoomTarget.y * editor.scale + zoomPoint.y
+
         setEditor({ ...editor })
       } else {
         editor.scroll.x -= e.deltaX
@@ -91,35 +69,40 @@ function App() {
         setEditor({ ...editor })
       }
     }
-    window.addEventListener("wheel", handleWheel, { passive: false })
+  })
+
+  useEffect(() => {
+    window.addEventListener("wheel", editor.handleWheel, { passive: false })
     return () => {
-      window.removeEventListener('wheel', handleWheel)
+      window.removeEventListener('wheel', editor.handleWheel)
     }
   }, [])
 
   return (
-    <Container ref={containerRef}>
-      <View ref={viewRef} style={{
-        "--x": editor.scroll.x,
-        "--y": editor.scroll.y,
-        "--scale": editor.scale,
-      } as React.CSSProperties}>
-        <Child>
-          <h1>Vite + React</h1>
-          <div className="card">
-            <button onClick={() => setCount((count) => count + 1)}>
-              count is {count}
-            </button>
-            <p>
-              Edit <code>src/App.tsx</code> and save to test HMR
+    <>
+      <ViewportWrap>
+        <Viewport style={{
+          "--x": editor.scroll.x,
+          "--y": editor.scroll.y,
+          "--scale": editor.scale,
+        } as React.CSSProperties}>
+          <Child>
+            <h1>Vite + React</h1>
+            <div className="card">
+              <button onClick={() => setCount((count) => count + 1)}>
+                count is {count}
+              </button>
+              <p>
+                Edit <code>src/App.tsx</code> and save to test HMR
+              </p>
+            </div>
+            <p className="read-the-docs">
+              Click on the Vite and React logos to learn more
             </p>
-          </div>
-          <p className="read-the-docs">
-            Click on the Vite and React logos to learn more
-          </p>
-        </Child>
-      </View>
-    </Container>
+          </Child>
+        </Viewport>
+      </ViewportWrap>
+    </>
   )
 }
 

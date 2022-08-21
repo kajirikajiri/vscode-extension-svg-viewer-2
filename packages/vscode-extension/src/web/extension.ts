@@ -165,8 +165,8 @@ export class EditorProvider implements vscode.CustomEditorProvider {
       <meta http-equiv="Content-Security-Policy" content="${csp}">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
-    <body>
-      <div id="root"></div>
+    <body style="padding:0;">
+      <div id="root" style="width: 100%; height: 100%; position: fixed; left: 0; top: 0; display: flex;"></div>
       ${isDevelopment ? viteScripts : ""}
       <script nonce="${nonce}" type="module" src="${scriptSrc}"></script>
     </body>
