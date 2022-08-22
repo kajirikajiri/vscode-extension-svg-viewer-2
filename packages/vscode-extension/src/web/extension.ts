@@ -113,64 +113,53 @@ export class EditorProvider implements vscode.CustomEditorProvider {
     const isDevelopment = this.context.extensionMode === vscode.ExtensionMode.Development;
 
     const csp = `
-    default-src 'none';
-    connect-src ${webviewPanel.webview.cspSource} https: data: ${isDevelopment ? "ws://localhost:5971" : "" };
-    img-src ${webviewPanel.webview.cspSource} https: data:;
-    font-src ${webviewPanel.webview.cspSource} https: data:;
-    style-src ${webviewPanel.webview.cspSource } https: data: 'unsafe-inline';
-    script-src 'nonce-${nonce}' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic';
-  `;
+      default-src 'none';
+      connect-src ${webviewPanel.webview.cspSource} https: data: ${isDevelopment ? "ws://localhost:5971" : "" };
+      img-src ${webviewPanel.webview.cspSource} https: data:;
+      font-src ${webviewPanel.webview.cspSource} https: data:;
+      style-src ${webviewPanel.webview.cspSource } https: data: 'unsafe-inline';
+      script-src 'nonce-${nonce}' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic';
+    `;
 
-  const viteScripts = `
-  <script nonce="${nonce}" type="module">
-    console.log("load vite script");
-    import RefreshRuntime from "http://localhost:5971/@react-refresh"
-    RefreshRuntime.injectIntoGlobalHook(window)
-    window.$RefreshReg$ = () => {}
-    window.$RefreshSig$ = () => (type) => type
-    window.__vite_plugin_react_preamble_installed__ = true
-  </script>
-  <script nonce="${nonce}" type="module" src="http://localhost:5971/@vite/client"></script>
-`;
+    // https://ja.vitejs.dev/guide/backend-integration.html
+    const viteScripts = `
+      <script nonce="${nonce}" type="module">
+        console.log("load vite script");
+        import RefreshRuntime from "http://localhost:5971/@react-refresh"
+        RefreshRuntime.injectIntoGlobalHook(window)
+        window.$RefreshReg$ = () => {}
+        window.$RefreshSig$ = () => (type) => type
+        window.__vite_plugin_react_preamble_installed__ = true
+      </script>
+      <script nonce="${nonce}" type="module" src="http://localhost:5971/@vite/client"></script>
+    `;
 
     const scriptSrc = isDevelopment
-    ? "http://localhost:5971/src/main.tsx"
-    : webviewPanel.webview
+      ? "http://localhost:5971/src/main.tsx"
+      : webviewPanel.webview
         .asWebviewUri(
           vscode.Uri.joinPath(this.context.extensionUri, "dist", "webview.js")
         )
         .toString();
         
-
-  //   const csp = `
-  //   default-src 'none';
-  //   connect-src ${webviewPanel.webview.cspSource} https: data:;
-  //   img-src ${webviewPanel.webview.cspSource} https: data:;
-  //   font-src ${webviewPanel.webview.cspSource} https: data:;
-  //   style-src ${webviewPanel.webview.cspSource } https: data: 'unsafe-inline';
-  //   script-src 'nonce-${nonce}' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic';
-  // `;
-
-  //   const scriptSrc = webviewPanel.webview
-  //       .asWebviewUri(
-  //         vscode.Uri.joinPath(this.context.extensionUri, "dist", "webview.js")
-  //       )
-  //       .toString()
+    // packages/viewerのソースコードを埋め込むための要素
+    // 現状、cssファイルの読み込みに対応していないので、直接埋め込んでいる
+    const viewerRootElement = `<div id="root" style="width: 100%; height: 100%; position: fixed; left: 0; top: 0; display: flex;"></div>`
 
     webviewPanel.webview.html = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta http-equiv="Content-Security-Policy" content="${csp}">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body style="padding:0;">
-      <div id="root" style="width: 100%; height: 100%; position: fixed; left: 0; top: 0; display: flex;"></div>
-      ${isDevelopment ? viteScripts : ""}
-      <script nonce="${nonce}" type="module" src="${scriptSrc}"></script>
-    </body>
-    </html>
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="Content-Security-Policy" content="${csp}">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="padding:0;">
+        ${viewerRootElement}
+        ${isDevelopment ? viteScripts : ""}
+        <script nonce="${nonce}" type="module" src="${scriptSrc}"></script>
+      </body>
+      </html>
     `
   }
 }
